@@ -16,7 +16,7 @@ const HeroSection = () => {
         priority
       />
 
-      <div className="absolute inset-0 bg-black/60"></div>
+      <div className="absolute inset-0 bg-black/50"></div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -28,7 +28,7 @@ const HeroSection = () => {
           <h1 className="mb:4 text-5xl font-bold text-white">
             Start your journey to find the perfect place to call home
           </h1>
-          <p className="mb-8 text-xl text-white">
+          <p className="mt-2 mb-8 text-xl text-white">
             Explore our wide range of rental properties to fit your lifestyle
             and needs!
           </p>

@@ -13,8 +13,9 @@ const CallToActionSection = () => {
         alt="Rentiful Search Section Background"
         fill
         className="object-cover object-center"
+        loading="eager"
       />
-      <div className="absolute inset-0 bg-black/60"></div>
+      <div className="absolute inset-0 bg-black/50"></div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         transition={{ duration: 0.5 }}
