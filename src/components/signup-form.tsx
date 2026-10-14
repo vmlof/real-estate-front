@@ -13,6 +13,9 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { RadioGroup } from "@base-ui/react";
+import { RadioGroupItem } from "./ui/radio-group";
+import { Label } from "./ui/label";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   return (
@@ -54,6 +57,18 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               </FieldLabel>
               <Input id="confirm-password" type="password" required />
             </Field>
+
+            <RadioGroup defaultValue="tenant" className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <RadioGroupItem value="default" id="r1" />
+                <Label htmlFor="r1">Tenant</Label>
+              </div>
+              <div className="flex items-center gap-3">
+                <RadioGroupItem value="admin" id="r2" />
+                <Label htmlFor="r2">Admin</Label>
+              </div>
+            </RadioGroup>
+
             <FieldGroup>
               <Field>
                 <Button type="submit">Create Account</Button>
