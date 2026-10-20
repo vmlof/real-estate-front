@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "cn";
 
 import { Button } from "@/components/ui/button";
@@ -15,11 +17,15 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { loginAction } from "@/app/actions/auth";
+import { useActionState } from "react";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [state, formAction, isPending] = useActionState(loginAction, null);
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -30,13 +36,14 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form action={formAction}>
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
                   id="email"
                   type="email"
+                  name="email"
                   placeholder="email@example.com"
                   required
                 />
@@ -51,10 +58,19 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input id="password" type="password" name="password" required />
               </Field>
+
+              {state?.error && (
+                <p className="text-sm font-medium text-red-500">
+                  {state.error}
+                </p>
+              )}
+
               <Field>
-                <Button type="submit">Login</Button>
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? "Login in..." : "Login"}
+                </Button>
                 <FieldDescription className="text-center">
                   Don&apos;t have an account? <a href="#">Sign up</a>
                 </FieldDescription>

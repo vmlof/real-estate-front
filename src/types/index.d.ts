@@ -1,6 +1,5 @@
 import { LucideIcon } from "lucide-react";
-// TODO: Uncomment when AWS Amplify is integrated
-// import { AuthUser } from "aws-amplify/auth";
+
 // TODO: Uncomment when Prisma types are generated
 // import { Manager, Tenant, Property, Application } from "./prismaTypes";
 import { MotionProps as OriginalMotionProps } from "framer-motion";
@@ -12,11 +11,40 @@ declare module "framer-motion" {
 }
 
 // Placeholder types until Prisma/backend is integrated
-type AuthUser = any;
-type Manager = any;
-type Tenant = any;
-type Property = any;
-type Application = any;
+// type AuthUser = any;
+// type Manager = any;
+// type Tenant = any;
+// type Property = any;
+// type Application = any;
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface UserDto {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
+
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: UserDto;
+}
+
+export interface ApiError {
+  code: string;
+  description: string;
+}
+
+export interface Result<T> {
+  isSuccess: boolean;
+  value?: T;
+  error?: ApiError;
+}
 
 declare global {
   enum AmenityEnum {
