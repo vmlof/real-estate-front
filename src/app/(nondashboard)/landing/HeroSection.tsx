@@ -1,57 +1,75 @@
-"use client";
+import { Search } from "lucide-react";
+import NavBar from "@/components/NavBar";
+import type { SessionUser } from "@/lib/auth";
+import LandingVisual from "./LandingVisual";
+import styles from "./landing.module.css";
 
-import Image from "next/image";
-import { motion } from "framer-motion";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-
-const HeroSection = () => {
+export default function HeroSection({ user }: { user: SessionUser | null }) {
   return (
-    <div className="relative h-screen">
-      <Image
-        src="/landing-splash.jpg"
-        alt="Rentiful Rental Plataform Hero Section"
-        fill
-        className="object-cover object-center"
-        priority
-      />
-
-      <div className="absolute inset-0 bg-black/50"></div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="absolute inset-0 flex items-center justify-center text-center"
-      >
-        <div className="mx-auto max-w-4xl px-16 sm:px-12">
-          <h1 className="mb:4 text-5xl font-bold text-white">
-            Start your journey to find the perfect place to call home
-          </h1>
-          <p className="mt-2 mb-8 text-xl text-white">
-            Explore our wide range of rental properties to fit your lifestyle
-            and needs!
-          </p>
-
-          <div className="flex justify-center">
-            <Input
-              type="text"
-              value="search query"
-              onChange={() => {}}
-              placeholder="Search by city, neighborhood or address"
-              className="h-12 w-full max-w-lg rounded-none rounded-l-xl border-none bg-white"
-            />
-            <Button
-              onClick={() => {}}
-              className="bg-secondary-500 hover:bg-secondary-600 h-12 rounded-none rounded-r-xl border-none text-white"
-            >
-              Search
-            </Button>
-          </div>
+    <section id="home" className={styles.hero} aria-labelledby="hero-heading">
+      <div className={styles.heroVisual}>
+        <LandingVisual
+          slot="hero"
+          label="Your next chapter"
+          alt="A contemporary home surrounded by trees in warm afternoon light"
+          priority
+          dark
+          sizes="(max-width: 1440px) 100vw, 1440px"
+        />
+      </div>
+      <div className={styles.heroShade} />
+      <NavBar user={user} variant="landing" />
+      <div className={styles.heroCopy}>
+        <span className={styles.heroEyebrow}>A PLACE TO CALL YOUR OWN</span>
+        <h1 id="hero-heading">
+          Find your place.
+          <br />
+          Make it home.
+        </h1>
+        <p>Space for your routines, your people, and your next chapter.</p>
+      </div>
+      <div className={styles.searchPanel}>
+        <div className={styles.searchHeading}>
+          <h2>Find your next home</h2>
+          <span className={styles.badge} id="search-status">
+            Search coming soon
+          </span>
         </div>
-      </motion.div>
-    </div>
+        <fieldset
+          disabled
+          aria-describedby="search-status"
+          className={styles.searchFields}
+        >
+          <legend className={styles.srOnly}>
+            Preview of future rental search filters
+          </legend>
+          <label>
+            City or neighborhood
+            <input placeholder="Enter a city or neighborhood" type="text" />
+          </label>
+          <label>
+            Home type
+            <select defaultValue="">
+              <option value="">Any type</option>
+            </select>
+          </label>
+          <label>
+            Monthly budget
+            <select defaultValue="">
+              <option value="">Any budget</option>
+            </select>
+          </label>
+          <label>
+            Bedrooms
+            <select defaultValue="">
+              <option value="">Any number</option>
+            </select>
+          </label>
+          <button type="button">
+            <Search size={16} aria-hidden="true" /> Search rentals
+          </button>
+        </fieldset>
+      </div>
+    </section>
   );
-};
-
-export default HeroSection;
+}

@@ -93,6 +93,8 @@ Ao concluir a implementação de uma tarefa, o agente deve fornecer um relatóri
 
 ## Manutenção Contínua da Documentação
 
+- A landing em `/landing` (também destino de `/`) segue o conceito aprovado em inglês, com placeholders e carrossel editorial Rental Guide. Estrutura, troca de imagens, decisões e validação estão em [LANDING.md](LANDING.md). Não presumir que a busca demonstrativa representa endpoints de imóveis implementados.
+
 Este arquivo (`AGENTS.md`) e outros documentos de arquitetura devem refletir a **realidade** do projeto, e não apenas o planejamento utópico.
 
 - Atualize este arquivo ou documentos correlatos sempre que um novo padrão for adotado (ex: troca de biblioteca de estado, mudança no fluxo de autenticação).

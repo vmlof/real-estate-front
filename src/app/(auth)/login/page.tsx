@@ -30,8 +30,8 @@ export default async function Page({
         {pendingLogout && (
           <div className="space-y-2">
             <p>
-              Acesso local bloqueado. A saída ainda precisa ser confirmada pelo
-              serviço.
+              Local access blocked. Exit still needs to be confirmed by the
+              service.
             </p>
             <LogoutButton />
           </div>

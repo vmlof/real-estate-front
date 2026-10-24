@@ -1,109 +1,80 @@
-"use client";
+import { ArrowUpRight } from "lucide-react";
+import LandingVisual from "./LandingVisual";
+import styles from "./landing.module.css";
 
-import { motion } from "framer-motion";
-import Image from "next/image";
-import Link from "next/link";
-
-interface FeatureCardProps {
-  imageSrc: string;
-  title: string;
-  description: string;
-  linkText: string;
-  linkHref: string;
-}
-
-const containerVariants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-      staggerChildren: 0.2,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
-};
-
-const FeaturesSection = () => {
+export default function FeaturesSection() {
   return (
-    <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      variants={containerVariants}
-      className="bg-white px-6 py-24 sm:px-8 lg:px-12 xl:px-16"
+    <section
+      id="about"
+      className={styles.section + " " + styles.about}
+      aria-labelledby="about-heading"
     >
-      <div className="mx-auto max-w-4xl xl:max-w-6xl">
-        <motion.h2
-          variants={itemVariants}
-          className="mx-auto mb-12 w-full text-center text-3xl font-bold sm:w-2/3"
-        >
-          Quickly find the home you want using our effective search filters!
-        </motion.h2>
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:gap-12 xl:gap-16">
-          {[0, 1, 2].map((index) => (
-            <motion.div key={index} variants={itemVariants}>
-              <FeatureCard
-                imageSrc={`/landing-search${3 - index}.png`}
-                title={
-                  [
-                    "Trustworthy and Verified Listings",
-                    "Browse Rental Listings with Ease",
-                    "Simplify Your Rental Search with Advanced",
-                  ][index]
-                }
-                description={
-                  [
-                    "Discover the best rental options with user reviews and ratings.",
-                    "Get access to user reviews and ratings for a better understanding of rental options.",
-                    "Find trustworthy and verified rental listings to ensure a hassle-free experience.",
-                  ][index]
-                }
-                linkText={["Explore", "Search", "Discover"][index]}
-                linkHref={["/explore", "/search", "/discover"][index]}
-              />
-            </motion.div>
-          ))}
+      <div className={styles.sectionHeading}>
+        <div>
+          <span className={styles.eyebrow}>MORE THAN AN ADDRESS</span>
+          <h2 id="about-heading">A home that feels like you.</h2>
+        </div>
+        <p>
+          The best place to live is the one
+          <br className={styles.desktopBreak} /> that fits the way you live.
+        </p>
+      </div>
+      <div className={styles.collage}>
+        <div className={styles.collageMain}>
+          <LandingVisual
+            slot="home"
+            label="A home that feels like you"
+            alt="A welcoming home opening onto a green garden"
+            sizes="(max-width: 700px) 90vw, 45vw"
+          />
+        </div>
+        <div className={styles.collageCopy}>
+          <span className={styles.eyebrow}>MADE FOR REAL LIFE</span>
+          <h3>
+            More room for
+            <br />
+            everyday life.
+          </h3>
+          <p>Think beyond the floor plan. Imagine how you want to live.</p>
+          <a href="#rental-guide" className={styles.textLink}>
+            A little guidance <ArrowUpRight size={18} aria-hidden="true" />
+          </a>
+        </div>
+        <div className={styles.collageSide}>
+          <LandingVisual
+            slot="interior"
+            label="Everyday comfort"
+            alt="A bright, welcoming living room with natural wood and greenery"
+            sizes="(max-width: 700px) 45vw, 24vw"
+          />
         </div>
       </div>
-    </motion.div>
-  );
-};
-
-const FeatureCard = ({
-  imageSrc,
-  title,
-  description,
-  linkText,
-  linkHref,
-}: FeatureCardProps) => {
-  return (
-    <div className="text-center">
-      <div className="mb-4 flex h-48 items-center justify-center rounded-lg p-4">
-        <Image
-          src={imageSrc}
-          width={400}
-          height={400}
-          className="h-full w-full object-contain"
-          alt={title}
-        />
+      <div className={styles.values}>
+        <div>
+          <h3>Your neighborhood</h3>
+          <p>
+            Be close to the places
+            <br />
+            that matter most.
+          </p>
+        </div>
+        <div>
+          <h3>Your space</h3>
+          <p>
+            Find a home that fits
+            <br />
+            your lifestyle.
+          </p>
+        </div>
+        <div>
+          <h3>Your budget</h3>
+          <p>
+            Make room for where you are
+            <br />
+            and where you’re headed.
+          </p>
+        </div>
       </div>
-      <div className="mb-2 text-xl font-semibold">{title}</div>
-      <p className="mb-4">{description}</p>
-      <Link
-        href={linkHref}
-        className="inline-block rounded border border-gray-300 px-4 py-2 hover:bg-gray-100"
-        scroll={false}
-      >
-        {linkText}
-      </Link>
-    </div>
+    </section>
   );
-};
-
-export default FeaturesSection;
+}
