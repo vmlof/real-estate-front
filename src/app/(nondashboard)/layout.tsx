@@ -1,19 +1,22 @@
 import NavBar from "@/components/NavBar";
 import { NAVBAR_HEIGHT } from "@/lib/constants";
-import React from "react";
+import { getSession } from "@/lib/session";
 
-const layout = ({ children }: { children: React.ReactNode }) => {
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await getSession();
   return (
     <div className="h-full w-full">
-      <NavBar />
+      <NavBar user={session?.user ?? null} />
       <main
-        className={`flex h-full w-full flex-col`}
-        style={{ paddingTop: `${NAVBAR_HEIGHT}` }}
+        className="flex h-full w-full flex-col"
+        style={{ paddingTop: NAVBAR_HEIGHT }}
       >
         {children}
       </main>
     </div>
   );
-};
-
-export default layout;
+}

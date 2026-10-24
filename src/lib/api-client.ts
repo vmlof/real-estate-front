@@ -1,44 +1,41 @@
-import { getAccessToken } from "@/lib/session";
-import { refreshTokenAction } from "@/app/actions/auth";
-
-const API_URL = process.env.API_BASE_URL || "http://localhost:5149/api";
+import "server-only";
+import { getSession } from "./session";
+import { AuthError, readBody, responseError } from "./auth-http";
+import { API_URL } from "./auth-backend";
 
 export async function fetchWithAuth<T>(
   endpoint: string,
   options: RequestInit = {},
-): Promise<T> {
-  let accessToken = await getAccessToken();
-
-  const headers = new Headers(options.headers);
-  headers.set("Content-Type", "application/json");
-
-  if (accessToken) {
-    headers.set("Authorization", `Bearer ${accessToken}`);
+): Promise<T | undefined> {
+  if (
+    !endpoint.startsWith("/") ||
+    endpoint.startsWith("//") ||
+    endpoint.startsWith("/auth") ||
+    /[\\\r\n]/.test(endpoint)
+  ) {
+    throw new Error("Endpoint inválido para o cliente autenticado.");
   }
-
-  let response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
-
-  // Se o token expirou (401 Unauthorized), tenta o refresh automaticamente
+  let session = await getSession();
+  if (!session) throw new AuthError(401, "Entre novamente para continuar.");
+  const request = (token: string) => {
+    const headers = new Headers(options.headers);
+    headers.set("Authorization", "Bearer " + token);
+    headers.delete("Cookie");
+    return fetch(`${API_URL}/${endpoint}`, {
+      ...options,
+      headers,
+      cache: "no-store",
+      redirect: "error",
+      signal: options.signal ?? AbortSignal.timeout(10_000),
+    });
+  };
+  let response = await request(session.accessToken);
   if (response.status === 401) {
-    const refreshed = await refreshTokenAction();
-
-    if (refreshed) {
-      accessToken = await getAccessToken();
-      headers.set("Authorization", `Bearer ${accessToken}`);
-
-      response = await fetch(`${API_URL}${endpoint}`, {
-        ...options,
-        headers,
-      });
-    }
+    session = await getSession(session.accessToken);
+    if (!session)
+      throw new AuthError(401, "Sua sessão expirou. Entre novamente.");
+    response = await request(session.accessToken);
   }
-
-  if (!response.ok) {
-    throw new Error(`Erro na requisição: ${response.statusText}`);
-  }
-
-  return response.json();
+  if (!response.ok) throw await responseError(response);
+  return (await readBody(response)) as T | undefined;
 }

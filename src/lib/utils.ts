@@ -20,13 +20,13 @@ export function cleanParams(params: Record<string, any>): Record<string, any> {
   return Object.fromEntries(
     Object.entries(params).filter(
       (
-        [_, value] // eslint-disable-line @typescript-eslint/no-unused-vars
+        [_, value], // eslint-disable-line @typescript-eslint/no-unused-vars
       ) =>
         value !== undefined &&
         value !== "any" &&
         value !== "" &&
-        (Array.isArray(value) ? value.some((v) => v !== null) : value !== null)
-    )
+        (Array.isArray(value) ? value.some((v) => v !== null) : value !== null),
+    ),
   );
 }
 
@@ -35,9 +35,9 @@ type MutationMessages = {
   error: string;
 };
 
-export const withToast = async <T,>(
+export const withToast = async <T>(
   mutationFn: Promise<T>,
-  messages: Partial<MutationMessages>
+  messages: Partial<MutationMessages>,
 ) => {
   const { success, error } = messages;
 
@@ -49,31 +49,4 @@ export const withToast = async <T,>(
     if (error) toast.error(error);
     throw err;
   }
-};
-
-export const createNewUserInDatabase = async (
-  user: any,
-  idToken: any,
-  userRole: string,
-  fetchWithBQ: any
-) => {
-  const createEndpoint =
-    userRole?.toLowerCase() === "manager" ? "/managers" : "/tenants";
-
-  const createUserResponse = await fetchWithBQ({
-    url: createEndpoint,
-    method: "POST",
-    body: {
-      cognitoId: user.userId,
-      name: user.username,
-      email: idToken?.payload?.email || "",
-      phoneNumber: "",
-    },
-  });
-
-  if (createUserResponse.error) {
-    throw new Error("Failed to create user record");
-  }
-
-  return createUserResponse;
 };

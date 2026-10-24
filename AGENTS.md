@@ -2,7 +2,7 @@
 
 Antes de propor ou implementar qualquer mudança, faça uma análise abrangente do estado atual da aplicação.
 
-- **Stack Tecnológico Identificado:** Next.js 16 com App Router (`src/app`), React 19, TypeScript, Tailwind CSS 4, PNPM e shadcn/ui com Base UI. Redux Toolkit e RTK Query estão configurados em `src/state`; a API do RTK Query ainda não possui endpoints.
+- **Stack Tecnológico Identificado:** Next.js 16 com App Router (`src/app`), React 19, TypeScript, Tailwind CSS 4, PNPM e shadcn/ui com Base UI. Redux Toolkit e RTK Query estão configurados em `src/state`; o endpoint `getSession` consulta o Next.js em `/api/auth/session`, sem expor tokens.
 - **Ação Obrigatória:** Analise a estrutura de pastas, componentes, gerenciamento de estado (se houver Redux, Zustand ou Context API), comunicação com a API e tratamento de erros.
 - **Compreensão Contextual:** Entenda como as partes do projeto se interligam. Nunca faça alterações isoladas sem verificar o impacto cascata nos componentes dependentes.
 
@@ -41,22 +41,21 @@ O backend deste projeto é desenvolvido em **ASP.NET Core**. A integração entr
 - Chamadas diretas do navegador à API precisam de `credentials: "include"`. O CORS usa `Frontend:Origin` com credenciais habilitadas; a origem de desenvolvimento configurada é `http://localhost:3000`.
 - Chamadas nas Server Actions são servidor-servidor: cookies do navegador e `Set-Cookie` da API não são encaminhados automaticamente. Se o Next.js intermediar a sessão, implemente explicitamente o encaminhamento de `Cookie` e o processamento de `Set-Cookie`, incluindo rotação e exclusão. `credentials: "include"` sozinho não resolve esse fluxo. O `Path=/api/auth` também precisa ser considerado ao definir onde o navegador enviará cookies.
 - Os perfis locais da API usam `http://localhost:5149` e `https://localhost:7261`; há redirecionamento HTTPS. Valide no navegador a combinação de esquema, certificado, `Secure` e `SameSite` antes de mudar atributos. CORS não substitui proteção contra CSRF.
-- `API_BASE_URL` é usado no servidor e `NEXT_PUBLIC_API_BASE_URL` na configuração do RTK Query. As chamadas atuais acrescentam `/auth/...`, portanto a base deve incluir `/api`. Nunca coloque segredos JWT ou credenciais do banco em variáveis `NEXT_PUBLIC_*`.
+- `API_BASE_URL` é usado somente no servidor, com padrão `https://localhost:7261/api`; a base deve incluir `/api` e apontar à URL final (redirecionamentos HTTP não são seguidos). RTK Query chama a própria origem Next.js em `/api/`; `NEXT_PUBLIC_API_BASE_URL` não é mais usado. Nunca coloque segredos JWT ou credenciais do banco em variáveis `NEXT_PUBLIC_*`.
 - O access token é JWT e deve ser enviado como `Authorization: Bearer <token>` para endpoints protegidos. A configuração versionada define 15 minutos para access token e 7 dias para refresh; confira overrides do ambiente. A API valida expiração com `ClockSkew=0`. A duração do cookie frontend não estende a validade do JWT.
 - As claims incluem `sub`, `email`, `role` e `jti`; os papéis são `Manager` e `Tenant`, com políticas `ManagerOnly` e `TenantOnly`. Preserve esses valores e não confunda ocultação de UI ou presença de cookie com autorização validada pela API.
 - Cada login cria uma sessão própria. O refresh rotaciona o token, e o anterior deixa de ser utilizável. Coordene renovações simultâneas, inclusive entre abas, e limite a repetição da chamada original após refresh; `403` não deve disparar renovação.
 - Logout é idempotente e revoga somente a sessão associada ao cookie, incluindo tokens sucessores. Descarte o access token local: um JWT já emitido continua válido até expirar. O backend não apaga o cookie em falhas de refresh, para evitar que respostas atrasadas removam um token recém-renovado.
 
-### Incompatibilidades verificadas e pendências
+### Integração implementada e pendências
 
-Esta lista registra o estado observado em 22/10/2026; não representa funcionalidades já corrigidas. Atualize-a quando a integração mudar.
-
-- **Erro atual — contrato:** `src/types/index.d.ts` exige `refreshToken` e `user` em `LoginResponse`, mas a API retorna apenas `accessToken`. `src/app/actions/auth.ts` e `src/middleware.ts` esperam o refresh token no JSON e o enviam no corpo, enquanto a API o lê de cookie. Não há processamento do `Set-Cookie` recebido da API nesses fluxos.
-- **Erro atual — sessão:** `src/lib/session.ts` cria cookies `homely_access_token` e `homely_refresh_token`, distintos do cookie da API, e dá 1 hora ao cookie do access token, embora o JWT tenha validade configurada de 15 minutos. A presença desses cookies no middleware não comprova uma sessão válida.
-- **Erro atual — respostas:** o login procura `errorData.message` em vez de considerar `description`/`ProblemDetails`; `src/lib/api-client.ts` sempre tenta ler JSON em respostas de sucesso. O logout não verifica `response.ok`, portanto pode encerrar a sessão local sem confirmar a revogação no backend.
-- **Melhoria necessária — concorrência:** o cliente autenticado e o middleware tentam renovar tokens sem coordenação compartilhada. A configuração de RTK Query ainda não envia credenciais nem implementa renovação.
-- **Decisão de integração pendente:** definir e implementar consistentemente se a autenticação será intermediada pelo Next.js ou chamada diretamente pelo navegador, respeitando os contratos acima. O frontend atual usa Server Actions, mas o transporte dos cookies ainda está incompleto.
-- **Validação pendente:** a documentação do backend registra testes de API/Postman e concorrência; isso não comprova o fluxo no navegador. Validar login, expiração, refresh, logout, chamadas simultâneas e `429` após corrigir a integração. Não registrar essas verificações como executadas sem evidência.
+- O Next.js intermedeia autenticação com Server Actions. `auth-backend.ts` lê `{ accessToken }` e `Set-Cookie`; refresh/logout encaminham `Cookie: refreshToken=...`, sem JSON de token.
+- O navegador guarda apenas `homely_session`, identificador aleatório HttpOnly. Tokens e claims recebidos diretamente da API ficam no armazenamento privado `session-store.ts`. A integridade do usuário vem dessa sessão no servidor, não de decodificar um JWT fornecido pelo navegador.
+- O armazenamento local em `.sessions/` (ou `SESSION_STORE_DIR`) usa escrita atômica e bloqueio por sessão entre processos no mesmo filesystem. Sua expiração é absoluta, limitada ao refresh recebido no login. Leia [AUTHENTICATION.md](AUTHENTICATION.md) antes de alterar concorrência, armazenamento ou cookies, especialmente para deploy com múltiplas máquinas/serverless.
+- O middleware antigo foi removido. Layouts, páginas privadas e acesso à API verificam a sessão no servidor. As roles são exatamente `Manager` e `Tenant`; destinos implementados: `/managers` e `/tenants/favorites`. Novas páginas/ações privadas devem verificar autorização junto aos dados.
+- Erros de negócio, ProblemDetails, validação, respostas vazias e `204` são tratados. `401` de refresh invalida a sessão; `429`/falhas temporárias preservam-na com espera. Logout bloqueia acesso local e mantém a possibilidade de repetir a revogação se a API falhar.
+- RTK Query consulta somente dados públicos de sessão no Next.js; mudanças de identidade limpam caches e sincronizam abas. Não criar endpoints de negócio presumidos.
+- **Validação pendente:** testes automatizados usam transporte simulado, inclusive concorrência entre processos. O fluxo real no navegador depende da API em execução e certificado confiável. As limitações e pendências estão em [IMPROVEMENTS.md](IMPROVEMENTS.md). Não confundir testes simulados com validação do backend real.
 
 ## Simplicidade, Robustez e Aprendizado (Sem Overengineering)
 
@@ -103,5 +102,5 @@ Este arquivo (`AGENTS.md`) e outros documentos de arquitetura devem refletir a *
 
 O agente deve encorajar e respeitar as etapas de validação.
 
-- Para alterações de código, execute as verificações existentes: `pnpm lint`, `pnpm exec tsc --noEmit` e `pnpm build`. Atualmente não há script de testes automatizados em `package.json`; não presuma que `pnpm test` existe. Para alterações exclusivamente documentais, confira os caminhos e contratos citados e revise o diff; informe que testes de execução não foram realizados.
+- Para alterações de código, execute as verificações existentes: `pnpm test:auth`, `pnpm lint`, `pnpm exec tsc --noEmit`, `pnpm build` e, após o build, `pnpm test:smoke`. Os testes de autenticação usam o runner nativo do Node (Node 22.15+; ambiente validado com Node 24); não presuma que `pnpm test` existe. Para alterações exclusivamente documentais, confira os caminhos e contratos citados e revise o diff; informe que testes de execução não foram realizados.
 - **Transparência:** Nunca afirme que o código foi testado ou validado se você (agente) apenas gerou o código. Peça o feedback dos logs de erro do terminal do usuário caso o build ou lint falhem. Avalie cautelosamente como as alterações do frontend se comportarão ao consumir a API em ASP.NET Core real.

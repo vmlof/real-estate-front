@@ -25,14 +25,11 @@ export interface LoginRequest {
 export interface UserDto {
   id: string;
   email: string;
-  name: string;
-  role: string;
+  role: import("@/lib/auth").Role;
 }
 
 export interface LoginResponse {
   accessToken: string;
-  refreshToken: string;
-  user: UserDto;
 }
 
 export interface ApiError {

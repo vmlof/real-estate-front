@@ -1,12 +1,18 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import type { SessionUser } from "@/lib/auth";
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
+    baseUrl: "/api/",
+    credentials: "same-origin",
+    cache: "no-store",
   }),
   reducerPath: "api",
   tagTypes: [],
-  endpoints: (build) => ({}),
+  endpoints: (build) => ({
+    getSession: build.query<{ user: SessionUser | null }, void>({
+      query: () => "auth/session",
+    }),
+  }),
 });
-
-export const {} = api;
+export const { useGetSessionQuery } = api;

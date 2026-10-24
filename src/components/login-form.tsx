@@ -22,8 +22,9 @@ import { useActionState } from "react";
 
 export function LoginForm({
   className,
+  returnTo,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & { returnTo?: string }) {
   const [state, formAction, isPending] = useActionState(loginAction, null);
 
   return (
@@ -37,6 +38,7 @@ export function LoginForm({
         </CardHeader>
         <CardContent>
           <form action={formAction}>
+            <input type="hidden" name="returnTo" value={returnTo ?? ""} />
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -51,18 +53,12 @@ export function LoginForm({
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
                 </div>
                 <Input id="password" type="password" name="password" required />
               </Field>
 
               {state?.error && (
-                <p className="text-sm font-medium text-red-500">
+                <p role="alert" className="text-sm font-medium text-red-500">
                   {state.error}
                 </p>
               )}
@@ -72,7 +68,8 @@ export function LoginForm({
                   {isPending ? "Login in..." : "Login"}
                 </Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="#">Sign up</a>
+                  Utilize uma conta existente. O cadastro ainda não está
+                  disponível.
                 </FieldDescription>
               </Field>
             </FieldGroup>
