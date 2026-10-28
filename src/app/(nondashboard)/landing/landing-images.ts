@@ -1,17 +1,15 @@
-// Add files to public/landing/ and replace null with their public paths.
-// Example: hero: "/landing/home.webp". Never use a filesystem path here.
 export const landingImages: Record<string, string | null> = {
-  hero: null,
-  home: null,
-  interior: null,
-  neighborhoodMap: null,
-  apartment: null,
-  familyHome: null,
-  retreat: null,
-  budget: null,
-  neighborhood: null,
-  viewing: null,
-  closing: null,
+  hero: "/landing/hero.jpg",
+  home: "/landing/home.jpg",
+  interior: "/landing/interior.jpg",
+  neighborhoodMap: "/landing/neighborhood-map.png",
+  apartment: "/landing/apartment.jpg",
+  familyHome: "/landing/kitchen.jpg",
+  retreat: "/landing/retreat.jpg",
+  budget: "/landing/budget.jpg",
+  neighborhood: "/landing/neighborhood.jpg",
+  viewing: "/landing/viewing.jpg",
+  closing: "/landing/closing.jpg",
 };
 
 export type LandingImageSlot =

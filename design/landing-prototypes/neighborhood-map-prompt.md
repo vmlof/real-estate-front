@@ -1,0 +1,8 @@
+# Neighborhood map asset
+
+Generated using built-in ImageGen. Output: `public/landing/neighborhood-map.png`.
+Fictional illustrative map, not geographic data. The image is supplied as an asset; the landing image mapping was not changed.
+
+## Final prompt
+
+Create a finished raster image asset for Homely's neighborhood section, closely matching the supplied reference image's gentle pastel illustrated city map. Wide landscape, approximately 2.4:1 aspect ratio, high resolution. Top-down orthographic neighborhood map, subtly diagonal street grid: warm off-white and very pale gray building blocks, clean white major and minor streets, a broad softly curving powder-blue river with a narrow branch and a few simple white bridges, scattered pale sage and light green parks with minimal softly dimensional rounded trees. One prominent lime-green location pin precisely near the center, with a dark charcoal-green hollow location glyph on its face and a subtle soft shadow beneath. Flat editorial vector-like illustration rendered as a polished bitmap, understated depth only on trees and pin, airy clean composition, muted colors, lots of fine map details without clutter. The central marker is the focal point, everything else subdued. No text, street names, numbers, logos, labels, map controls, compass or watermark. Fictional neighborhood, not an actual geographic location. Edge-to-edge artwork, no outer margin, no rounded corners, no surrounding website or card frame: the web app will apply its own rounded corners. Opaque background. Reference is style and composition guidance; create an original harmonious street arrangement with the same feel.

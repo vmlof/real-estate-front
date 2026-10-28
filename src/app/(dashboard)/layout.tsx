@@ -14,7 +14,7 @@ export default async function DashboardLayout({
     <SidebarProvider>
       <div className="min-h-screen w-full">
         <NavBar user={user} isDashboard />
-        <div className="flex" style={{ paddingTop: NAVBAR_HEIGHT }}>
+        <div className="flex" style={{ paddingTop: `${NAVBAR_HEIGHT}px` }}>
           <AppSideBar role={user.role} />
           <main className="min-w-0 grow p-6">{children}</main>
         </div>

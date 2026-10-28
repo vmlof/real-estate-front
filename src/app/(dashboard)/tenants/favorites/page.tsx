@@ -2,6 +2,7 @@ import { requireUser } from "@/lib/session";
 
 export default async function Favorites() {
   await requireUser("Tenant");
+
   return (
     <section>
       <h1 className="text-2xl font-semibold">Favoritos</h1>

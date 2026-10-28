@@ -67,10 +67,6 @@ export function LoginForm({
                 <Button type="submit" disabled={isPending}>
                   {isPending ? "Login in..." : "Login"}
                 </Button>
-                <FieldDescription className="text-center">
-                  Utilize uma conta existente. O cadastro ainda não está
-                  disponível.
-                </FieldDescription>
               </Field>
             </FieldGroup>
           </form>
