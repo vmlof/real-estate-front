@@ -47,7 +47,7 @@ export default function NavBar({
         aria-label="Main navigation"
       >
         <div className="flex items-center gap-3">
-          {isDashboard && <SidebarTrigger />}
+          {isDashboard && <SidebarTrigger className="md:hidden" />}
           <Link
             href="/"
             className={

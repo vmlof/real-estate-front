@@ -21,6 +21,7 @@ export async function sessionId() {
 export async function createSession(tokens: TokenSet) {
   const { id, session } = await createStoredSession(tokens);
   const jar = await cookies();
+
   jar.set(SESSION_COOKIE, id, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -35,18 +36,24 @@ export async function createSession(tokens: TokenSet) {
 export async function getSession(rejectedAccessToken?: string) {
   const id = await sessionId();
   if (!id || !/^[a-f0-9]{64}$/.test(id)) return null;
+
   return withSessionLock(id, async () => {
     const session = await readStoredSession(id);
+
     if (!session || session.logoutPending) return null;
+
     const rejected =
       rejectedAccessToken && rejectedAccessToken === session.accessToken;
+
     if (!rejected && session.accessExpiresAt > Date.now()) return session;
+
     if (session.retryAfter && session.retryAfter > Date.now()) {
       throw new AuthError(
         session.lastError?.status ?? 503,
-        session.lastError?.message ?? "Tente novamente em instantes.",
+        session.lastError?.message ?? "Try again in a few moments.",
       );
     }
+
     try {
       const tokens = await readTokens(
         await backendAuth({
@@ -54,8 +61,13 @@ export async function getSession(rejectedAccessToken?: string) {
           refreshToken: session.refreshToken,
         }),
       );
+
       if (tokens.user.id !== session.user.id)
-        throw new AuthError(401, "A sessão mudou. Entre novamente.");
+        throw new AuthError(
+          401,
+          "The session has changed. Please log in again.",
+        );
+
       const updated = { ...tokens, expiresAt: session.expiresAt };
       await writeStoredSession(id, updated);
       return updated;
@@ -67,7 +79,8 @@ export async function getSession(rejectedAccessToken?: string) {
       const failure =
         error instanceof AuthError
           ? error
-          : new AuthError(503, "Serviço indisponível. Tente novamente.");
+          : new AuthError(503, "Service unavailable. Please try again.");
+
       await writeStoredSession(id, {
         ...session,
         retryAfter: Date.now() + (failure.status === 429 ? 60_000 : 10_000),
@@ -81,6 +94,7 @@ export async function getSession(rejectedAccessToken?: string) {
 export async function requireUser(role?: Role) {
   const session = await getSession();
   if (!session) redirect("/login");
+
   if (role && session.user.role !== role) redirect(roleHome[session.user.role]);
   return session.user;
 }
@@ -96,6 +110,7 @@ export async function destroySession() {
   if (id && /^[a-f0-9]{64}$/.test(id)) {
     await withSessionLock(id, async () => {
       const session = await readStoredSession(id);
+
       if (!session) return;
       // Block local access immediately but retain the refresh token for retry.
       await writeStoredSession(id, {
@@ -104,14 +119,16 @@ export async function destroySession() {
         accessExpiresAt: 0,
         logoutPending: true,
       });
+
       const response = await backendAuth({
         operation: "logout",
         refreshToken: session.refreshToken,
       });
+
       if (response.status !== 204)
         throw new AuthError(
           502,
-          "O serviço não confirmou a saída. Tente novamente.",
+          "The service did not confirm the logout. Please try again.",
         );
       await removeStoredSession(id);
     });

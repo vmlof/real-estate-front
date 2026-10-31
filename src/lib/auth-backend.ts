@@ -7,7 +7,7 @@ export const API_URL = process.env.API_URL;
 const secretKey = process.env.SECRET_KEY;
 
 if (!secretKey) {
-  throw new Error("SECRET_KEY was not configured.");
+  throw new Error("secret key was not configured.");
 }
 
 const encodedKey = Buffer.from(secretKey, "base64");
